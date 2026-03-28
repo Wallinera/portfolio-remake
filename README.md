@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Emirhan Karagoz Portfolio
+
+Personal portfolio built with Next.js 16, React 19, TypeScript, Tailwind CSS v4, and MongoDB-ready server actions. The site presents featured projects, a detailed skills section, downloadable documents, and a development console for seeding portfolio data into MongoDB during local development.
+
+## Preview
+
+<video src="./public/previewVideo.mp4" controls muted loop playsinline></video>
+
+If your Markdown viewer does not render the embedded video, open [`public/previewVideo.mp4`](./public/previewVideo.mp4) directly.
+
+## Highlights
+
+- Multi-page portfolio with dedicated home, about, projects, project detail, skills, and contact routes
+- Static portfolio content stored in [`lib/portfolio-data.ts`](./lib/portfolio-data.ts)
+- Development-only `/dev` console for seeding and upserting projects and skills into MongoDB
+- Revalidation after write actions so portfolio pages stay in sync with seeded data
+- Downloadable CV and language certificates served from `public/assets/portfolio/documents`
+
+## Tech Stack
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- MongoDB with Mongoose
 
 ## Getting Started
 
-First, run the development server:
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create a local environment file:
+
+```bash
+MONGODB_URI=your_mongodb_connection_string
+```
+
+3. Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` starts the local development server
+- `npm run build` creates a production build
+- `npm run start` serves the production build
+- `npm run lint` runs ESLint
 
-## Learn More
+## Data Flow
 
-To learn more about Next.js, take a look at the following resources:
+The public portfolio currently reads from in-repo data in [`lib/portfolio-data.ts`](./lib/portfolio-data.ts). MongoDB support is already wired in for local development through the `/dev` route:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Seed all portfolio projects and skills into MongoDB
+- Upsert a single project
+- Upsert a single skill
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+If `MONGODB_URI` is missing, the public site still works with static data, but database actions stay unavailable.
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```text
+app/                    App routes and layouts
+components/portfolio/   Portfolio UI and dev console forms
+lib/                    Portfolio content, types, theme, and MongoDB helpers
+models/                 Mongoose models
+public/                 Static assets, documents, images, and preview video
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Notes
+
+- The `/dev` route is disabled automatically in production.
+- Portfolio documents and project imagery live under `public/assets/portfolio/`.
