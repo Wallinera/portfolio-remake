@@ -4,9 +4,9 @@ Personal portfolio built with Next.js 16, React 19, TypeScript, Tailwind CSS v4,
 
 ## Preview
 
-<video src="./public/previewVideo.mp4" controls muted loop playsinline></video>
+GitHub does not reliably render embedded video tags inside `README.md`.
 
-If your Markdown viewer does not render the embedded video, open [`public/previewVideo.mp4`](./public/previewVideo.mp4) directly.
+[Watch the portfolio preview video](./public/previewVideo.mp4)
 
 ## Highlights
 
