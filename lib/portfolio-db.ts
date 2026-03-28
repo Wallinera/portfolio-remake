@@ -5,6 +5,14 @@ import type {
   SiteDocument,
 } from "@/lib/portfolio-types";
 
+import {
+  getFeaturedProjects,
+  getProjectBySlug,
+  getProjects,
+  getSkillBySlug,
+  getSkillGroups,
+  getSkills,
+} from "@/lib/portfolio-data";
 import { connectToDatabase } from "@/lib/mongodb";
 import { ProjectModel } from "@/models/Project";
 import { SkillModel } from "@/models/Skill";
@@ -97,42 +105,85 @@ function mapSkillDocument(skill: SkillDbRecord): SkillRecord {
   };
 }
 
+function hasMongoConnectionString() {
+  return Boolean(process.env.MONGODB_URI);
+}
+
+async function withPortfolioFallback<T>(
+  readFromDb: () => Promise<T>,
+  readFromStaticData: () => T,
+) {
+  if (!hasMongoConnectionString()) {
+    return readFromStaticData();
+  }
+
+  try {
+    return await readFromDb();
+  } catch (error) {
+    console.warn(
+      "Falling back to static portfolio data because the MongoDB read failed.",
+      error,
+    );
+    return readFromStaticData();
+  }
+}
+
 export async function getProjectsFromDb() {
-  await connectToDatabase();
+  return withPortfolioFallback(
+    async () => {
+      await connectToDatabase();
 
-  const projects = await ProjectModel.find({})
-    .sort({ order: 1 })
-    .select("-_id -createdAt -updatedAt")
-    .lean<ProjectDbRecord[]>();
+      const projects = await ProjectModel.find({})
+        .sort({ order: 1 })
+        .select("-_id -createdAt -updatedAt")
+        .lean<ProjectDbRecord[]>();
 
-  return projects.map(mapProjectDocument);
+      return projects.map(mapProjectDocument);
+    },
+    () => getProjects(),
+  );
 }
 
 export async function getProjectBySlugFromDb(slug: string) {
-  await connectToDatabase();
+  return withPortfolioFallback(
+    async () => {
+      await connectToDatabase();
 
-  const project = await ProjectModel.findOne({ slug })
-    .select("-_id -createdAt -updatedAt")
-    .lean<ProjectDbRecord | null>();
+      const project = await ProjectModel.findOne({ slug })
+        .select("-_id -createdAt -updatedAt")
+        .lean<ProjectDbRecord | null>();
 
-  return project ? mapProjectDocument(project) : null;
+      return project ? mapProjectDocument(project) : null;
+    },
+    () => getProjectBySlug(slug),
+  );
 }
 
 export async function getFeaturedProjectsFromDb(limit = 4) {
-  await connectToDatabase();
+  return withPortfolioFallback(
+    async () => {
+      await connectToDatabase();
 
-  const projects = await ProjectModel.find({ featured: true })
-    .sort({ order: 1 })
-    .limit(limit)
-    .select("-_id -createdAt -updatedAt")
-    .lean<ProjectDbRecord[]>();
+      const projects = await ProjectModel.find({ featured: true })
+        .sort({ order: 1 })
+        .limit(limit)
+        .select("-_id -createdAt -updatedAt")
+        .lean<ProjectDbRecord[]>();
 
-  return projects.map(mapProjectDocument);
+      return projects.map(mapProjectDocument);
+    },
+    () => getFeaturedProjects(limit),
+  );
 }
 
 export async function getProjectCountFromDb() {
-  await connectToDatabase();
-  return ProjectModel.countDocuments({});
+  return withPortfolioFallback(
+    async () => {
+      await connectToDatabase();
+      return ProjectModel.countDocuments({});
+    },
+    () => getProjects().length,
+  );
 }
 
 export async function getTechnologyHighlightsFromDb(limit = 8) {
@@ -158,52 +209,72 @@ export async function getTechnologyHighlightsFromDb(limit = 8) {
 }
 
 export async function getSkillsFromDb() {
-  await connectToDatabase();
+  return withPortfolioFallback(
+    async () => {
+      await connectToDatabase();
 
-  const skills = await SkillModel.find({})
-    .sort({ order: 1 })
-    .select("-_id -createdAt -updatedAt")
-    .lean<SkillDbRecord[]>();
+      const skills = await SkillModel.find({})
+        .sort({ order: 1 })
+        .select("-_id -createdAt -updatedAt")
+        .lean<SkillDbRecord[]>();
 
-  return skills.map(mapSkillDocument);
+      return skills.map(mapSkillDocument);
+    },
+    () => getSkills(),
+  );
 }
 
 export async function getSkillBySlugFromDb(slug: string) {
-  await connectToDatabase();
+  return withPortfolioFallback(
+    async () => {
+      await connectToDatabase();
 
-  const skill = await SkillModel.findOne({ slug })
-    .select("-_id -createdAt -updatedAt")
-    .lean<SkillDbRecord | null>();
+      const skill = await SkillModel.findOne({ slug })
+        .select("-_id -createdAt -updatedAt")
+        .lean<SkillDbRecord | null>();
 
-  return skill ? mapSkillDocument(skill) : null;
+      return skill ? mapSkillDocument(skill) : null;
+    },
+    () => getSkillBySlug(slug),
+  );
 }
 
 export async function getSkillGroupsFromDb(): Promise<SkillGroup[]> {
-  const skills = await getSkillsFromDb();
-  const groups = new Map<string, SkillGroup>();
+  return withPortfolioFallback(
+    async () => {
+      const skills = await getSkillsFromDb();
+      const groups = new Map<string, SkillGroup>();
 
-  for (const skill of skills) {
-    const currentGroup = groups.get(skill.categoryKey);
+      for (const skill of skills) {
+        const currentGroup = groups.get(skill.categoryKey);
 
-    if (currentGroup) {
-      currentGroup.skills.push(skill);
-      continue;
-    }
+        if (currentGroup) {
+          currentGroup.skills.push(skill);
+          continue;
+        }
 
-    groups.set(skill.categoryKey, {
-      key: skill.categoryKey,
-      label: skill.categoryLabel,
-      accent: skill.categoryAccent,
-      icon: skill.categoryIcon,
-      special: skill.special,
-      skills: [skill],
-    });
-  }
+        groups.set(skill.categoryKey, {
+          key: skill.categoryKey,
+          label: skill.categoryLabel,
+          accent: skill.categoryAccent,
+          icon: skill.categoryIcon,
+          special: skill.special,
+          skills: [skill],
+        });
+      }
 
-  return [...groups.values()];
+      return [...groups.values()];
+    },
+    () => getSkillGroups(),
+  );
 }
 
 export async function getSkillCountFromDb() {
-  await connectToDatabase();
-  return SkillModel.countDocuments({});
+  return withPortfolioFallback(
+    async () => {
+      await connectToDatabase();
+      return SkillModel.countDocuments({});
+    },
+    () => getSkills().length,
+  );
 }
