@@ -8,14 +8,6 @@ import {
 } from "@/lib/portfolio-db";
 import { projectThemeStyle } from "@/lib/project-theme";
 
-export async function generateStaticParams() {
-  const projects = await getProjectsFromDb();
-
-  return projects.map((project) => ({
-    slug: project.slug,
-  }));
-}
-
 export default async function ProjectDetailPage({
   params,
 }: {
