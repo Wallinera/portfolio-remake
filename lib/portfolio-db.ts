@@ -101,7 +101,7 @@ export async function getProjectsFromDb() {
   await connectToDatabase();
 
   const projects = await ProjectModel.find({})
-    .sort({ order: 1 })
+    .sort({ order: -1 })
     .select("-_id -createdAt -updatedAt")
     .lean<ProjectDbRecord[]>();
 
@@ -122,7 +122,7 @@ export async function getFeaturedProjectsFromDb(limit = 4) {
   await connectToDatabase();
 
   const projects = await ProjectModel.find({ featured: true })
-    .sort({ order: 1 })
+    .sort({ order: -1 })
     .limit(limit)
     .select("-_id -createdAt -updatedAt")
     .lean<ProjectDbRecord[]>();

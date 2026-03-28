@@ -133,7 +133,7 @@ export default async function ProjectDetailPage({
           <div className="panel border-dashed p-5">
             <p className="eyebrow">Next</p>
             <p className="mt-3 text-sm leading-7 text-slate-600">
-              This is the latest project currently featured in the portfolio.
+              This is the final entry in the current project ordering.
             </p>
           </div>
         )}
