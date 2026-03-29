@@ -26,8 +26,8 @@ export const profile: Profile = {
     {
       kind: "cv",
       label: "Current CV",
-      href: "/assets/portfolio/documents/cv-2026-03-14.pdf",
-      description: "Current Cv, Last update: 14.03.2026",
+      href: "/assets/portfolio/documents/2026-03-29-cv.pdf",
+      description: "Current CV, last updated: 29.03.2026",
     },
     {
       kind: "certificate",

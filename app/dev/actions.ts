@@ -4,8 +4,9 @@ import { revalidatePath } from "next/cache";
 
 import type { DevActionState } from "@/app/dev/action-state";
 import { connectToDatabase } from "@/lib/mongodb";
-import { projects, skills } from "@/lib/portfolio-data";
+import { profile, projects, skills } from "@/lib/portfolio-data";
 import { ProjectModel } from "@/models/Project";
+import { ProfileModel } from "@/models/Profile";
 import { SkillModel } from "@/models/Skill";
 
 function ensureDevOnly() {
@@ -77,11 +78,27 @@ export async function seedPortfolioAction(
       { ordered: false },
     );
 
+    await ProfileModel.findOneAndUpdate(
+      { key: "portfolio-profile" },
+      {
+        $set: {
+          key: "portfolio-profile",
+          ...profile,
+        },
+      },
+      {
+        upsert: true,
+        new: true,
+        runValidators: true,
+        setDefaultsOnInsert: true,
+      },
+    );
+
     revalidatePortfolioRoutes();
 
     return {
       status: "success",
-      message: `Seeded ${projects.length} projects and ${skills.length} skills into MongoDB.`,
+      message: `Seeded ${projects.length} projects, ${skills.length} skills, and the profile record into MongoDB.`,
     };
   } catch (error) {
     return actionError(error);

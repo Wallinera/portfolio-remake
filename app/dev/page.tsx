@@ -39,7 +39,7 @@ export default async function DevPage() {
             <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600">
               This route is prepared for the MongoDB phase. The public site is
               still powered by static repo data, but the actions below can bulk
-              seed or manually upsert projects and skills as soon as the
+              seed the current profile, projects, and skills as soon as the
               database connection string exists.
             </p>
 
@@ -145,6 +145,17 @@ export default async function DevPage() {
               </li>
               <li>`order`, `special`</li>
               <li>Optional `certificate` object for linked PDFs</li>
+            </ul>
+          </div>
+
+          <div className="panel p-5">
+            <p className="eyebrow">Profile schema</p>
+            <ul className="mt-4 space-y-2 text-sm leading-6 text-slate-600">
+              <li>`name`, `role`, `heroQuote`, `introduction`</li>
+              <li>`sidebarSummary`, `aboutParagraphs[]`, `email`</li>
+              <li>`avatarSrc`, `logoSrc`</li>
+              <li>`documents[]`, including the current CV link</li>
+              <li>`socialLinks[]`</li>
             </ul>
           </div>
         </aside>

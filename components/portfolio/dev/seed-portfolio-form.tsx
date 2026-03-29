@@ -28,8 +28,9 @@ export function SeedPortfolioForm({
         Upload the current repo data.
       </h2>
       <p className="mt-3 text-sm leading-7 text-slate-600">
-        This action upserts {projectCount} projects and {skillCount} skills
-        using the same static records that power the public site today.
+        This action upserts {projectCount} projects, {skillCount} skills, and
+        the profile document links using the same static records that power the
+        public site today.
       </p>
 
       <div className="mt-4 rounded-[22px] border border-black/5 bg-white/70 p-4 text-sm leading-7 text-slate-600">
